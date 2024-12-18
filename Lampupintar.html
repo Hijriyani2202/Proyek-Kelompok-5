@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Coiny&family=Nunito:wght@591&display=swap" rel="stylesheet">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lampu Pintar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Lampu Pintar</h1>
+    <p>Pilih mode kontrol lampu:</p>
+    <div>
+      <button id="manualModeButton" onclick="setMode('manual')">Mode Manual</button>
+      <button id="autoModeButton" onclick="setMode('auto')">Mode Otomatis</button>
+    </div>
+    <p id="currentMode">Mode Saat Ini: Manual</p>
+    <div id="manualControls">
+      <button id="toggleButton" onclick="toggleLamp()">Nyalakan Lampu</button>
+    </div>
+    <p id="status">Status Lampu: Mati</p>
+  </div>
+
+  <script>
+    let lampStatus = false; // Status lampu
+    let mode = 'manual'; // Mode default
+    let sensorTimeout = null;
+
+    // Fungsi untuk mengatur mode
+    function setMode(selectedMode) {
+      mode = selectedMode;
+      const modeText = document.getElementById("currentMode");
+      const manualControls = document.getElementById("manualControls");
+
+      if (mode === 'manual') {
+        modeText.innerText = "Mode Saat Ini: Manual";
+        manualControls.style.display = "block"; // Tampilkan kontrol manual
+        clearTimeout(sensorTimeout); // Hentikan timer otomatis
+        updateLampUI(false);
+      } else if (mode === 'auto') {
+        modeText.innerText = "Mode Saat Ini: Otomatis";
+        manualControls.style.display = "none"; // Sembunyikan kontrol manual
+        updateLampUI(false); // Lampu mati saat mode otomatis diaktifkan
+      }
+    }
+
+    // Fungsi untuk menyalakan atau mematikan lampu di mode manual
+    function toggleLamp() {
+      if (mode === 'manual') {
+        lampStatus = !lampStatus; // Toggle status lampu
+        updateLampUI();
+      }
+    }
+
+    // Fungsi yang akan dipanggil oleh sensor ketika mendeteksi gerakan
+    function detectMotion() {
+      if (mode === 'auto') {
+        lampStatus = true; // Lampu menyala karena ada gerakan
+        updateLampUI();
+
+        // Timer untuk mematikan lampu otomatis setelah 10 detik
+        clearTimeout(sensorTimeout); // Reset timer jika gerakan terdeteksi lagi
+        sensorTimeout = setTimeout(() => {
+          lampStatus = false; // Lampu mati otomatis
+          updateLampUI();
+        }, 10000); // 10 detik
+      }
+    }
+
+    // Fungsi untuk memperbarui status UI
+    function updateLampUI() {
+      const statusText = document.getElementById("status");
+      const toggleButton = document.getElementById("toggleButton");
+
+      if (lampStatus) {
+        statusText.innerText = "Status Lampu: Menyala";
+        toggleButton.classList.add("manual-on"); // Tambahkan efek glow pada tombol manual
+      } else {
+        statusText.innerText = "Status Lampu: Mati";
+        toggleButton.classList.remove("manual-on");
+      }
+    }
+  </script>
+</body>
+</html>
